@@ -6,7 +6,8 @@ import vgg16
 from utils import load_image
 
 tf.flags.DEFINE_string("image",  None, "image filename")
-tf.flags.DEFINE_string("path", None, "root path containing images to embed")
+tf.flags.DEFINE_string("images_path", None,
+                       "root path containing images to embed")
 tf.flags.DEFINE_string("output", "embeddings.csv", "Output embedding file")
 FLAGS = tf.flags.FLAGS
 
@@ -30,9 +31,14 @@ def batch_embed(img_path, output):
         with tf.Session() as sess:
             for root, _, files in os.walk(img_path):
                 for f in files:
-                    img = os.path.join(root, f)
-                    emb = sess.run(embedding, feed_dict={input: img})
-                    write_embedding(emb, f, img)
+                    if "jpg" in f or "jpeg" in f:
+                        p = os.path.join(root, f)
+                        try:
+                            img = load_image(p)
+                            emb = sess.run(embedding, feed_dict={input: img})
+                            write_embedding(emb, f, img)
+                        except Exception:
+                            pass
 
 
 def embed_image(image):
@@ -43,8 +49,8 @@ def embed_image(image):
 
 
 def main(_):
-    if FLAGS.path:
-        batch_embed(FLAGS.path, FLAGS.output)
+    if FLAGS.images_path:
+        batch_embed(FLAGS.images_path, FLAGS.output)
     elif FLAGS.image:
         image = load_image(FLAGS.image)
         emb = embed_image(image)
