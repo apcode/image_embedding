@@ -19,10 +19,10 @@ class Vgg16:
     def __init__(self, images, weights=None):
         self.load_weights(weights)
         images = self.preprocess(images)
-        out = self.conv_layers(images)
-        self.embedding = self.embedding_layer(out)
-        out = self.fc_layers(out)
-        self.probs = tf.nn.softmax(out)
+        self.pool5 = self.layers(images)
+        self.fc = self.fc_layers(self.pool5)
+        self.embedding = self.embedding_layer(self.fc6)
+        self.probs = tf.nn.softmax(self.fc)
 
     def preprocess(self, images):
         red, green, blue = tf.split(axis=3, num_or_size_splits=3,
@@ -103,7 +103,7 @@ class Vgg16:
 
             return fc
 
-    def embedding(self, input):
+    def embedding_layer(self, input):
         shape = input.get_shape().as_list()
         dim = 1
         for d in shape[1:]:
@@ -111,13 +111,13 @@ class Vgg16:
         return tf.reshape(input, [-1, dim])
 
     def get_conv_filter(self, name):
-        return tf.constant(self.data_dict[name][0], name="filter")
+        return tf.constant(self.weights[name][0], name="filter")
 
     def get_bias(self, name):
-        return tf.constant(self.data_dict[name][1], name="biases")
+        return tf.constant(self.weights[name][1], name="biases")
 
     def get_fc_weight(self, name):
-        return tf.constant(self.data_dict[name][0], name="weights")
+        return tf.constant(self.weights[name][0], name="weights")
 
     def load_weights(self, weights):
         if weights is None:
@@ -129,14 +129,11 @@ class Vgg16:
 
 
 if __name__ == "__main__":
-    vgg = Vgg16()
     input = tf.placeholder(tf.float32, shape=(1, 224, 224, 3))
-    vgg.build(input)
-    x = vgg.conv1_1
-    print(x.shape)
-    print(tf.transpose(x).shape)
-    xs = tf.reshape(x, [1, 224 * 224, 64])
-    print(xs.shape)
-    print(tf.transpose(xs, perm=(0, 2, 1)).shape)
-    xx = tf.matmul(tf.transpose(xs, perm=(0, 2, 1)), xs)
-    print(xx.shape)
+    vgg = Vgg16(input)
+    print("conv1_1", vgg.conv1_1.shape)
+    print("embedding", vgg.embedding.shape)
+    print("fc6", vgg.fc6.shape)
+    print("fc7", vgg.fc7.shape)
+    print("fc8", vgg.fc8.shape)
+    print("probs", vgg.probs.shape)
