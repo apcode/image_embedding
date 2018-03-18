@@ -1,6 +1,7 @@
 import skimage
 import skimage.io
 import skimage.transform
+import numpy as np
 
 
 # returns image of shape [224, 224, 3]
@@ -8,6 +9,9 @@ import skimage.transform
 def load_image(path):
     # load image
     img = skimage.io.imread(path)
+    if len(img.shape) == 2:
+        img = img[:, :, np.newaxis]
+        img = np.repeat(img, 3, axis=2)
     short_edge = min(img.shape[:2])
     yy = int((img.shape[0] - short_edge) / 2)
     xx = int((img.shape[1] - short_edge) / 2)

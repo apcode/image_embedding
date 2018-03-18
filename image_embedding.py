@@ -42,7 +42,8 @@ def batch_embed(img_path, output):
                             emb = sess.run(embedding, feed_dict={input: img})
                             write_embedding(emb, f, img)
                             log.info("%ld: Wrote %s", n, p)
-                        except Exception:
+                        except Exception, e:
+                            log.warn(e)
                             log.warn("Failed on %s", p)
     return n
 
