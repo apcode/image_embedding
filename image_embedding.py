@@ -1,6 +1,7 @@
 import os
 import sys
 import tensorflow as tf
+import tensorflow.logging as log
 import vgg16
 
 from utils import load_image
@@ -27,18 +28,22 @@ def write_embedding(emb, f, label=None):
 
 def batch_embed(img_path, output):
     input, embedding = net()
-    with open(output) as f:
+    n = 0
+    with open(output, "w") as f:
         with tf.Session() as sess:
             for root, _, files in os.walk(img_path):
                 for f in files:
                     if "jpg" in f or "jpeg" in f:
                         p = os.path.join(root, f)
+                        n += 1
                         try:
                             img = load_image(p)
                             emb = sess.run(embedding, feed_dict={input: img})
                             write_embedding(emb, f, img)
+                            log.info("%ld: Wrote %s", n, p)
                         except Exception:
-                            pass
+                            log.warn("Failed on %s", p)
+    return n
 
 
 def embed_image(image):
@@ -50,7 +55,9 @@ def embed_image(image):
 
 def main(_):
     if FLAGS.images_path:
-        batch_embed(FLAGS.images_path, FLAGS.output)
+        log.info("Starting scanning path %s", FLAGS.images_path)
+        n = batch_embed(FLAGS.images_path, FLAGS.output)
+        log.info("Done %ld", n)
     elif FLAGS.image:
         image = load_image(FLAGS.image)
         emb = embed_image(image)
