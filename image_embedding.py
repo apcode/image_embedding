@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import sys
 import tensorflow as tf
@@ -66,7 +68,7 @@ def main(_):
         with open(FLAGS.output) as f:
             write_embedding(emb, f)
     else:
-        print "Usage: image_embedding.py --image|--path --output"
+        print("Usage: image_embedding.py --image|--path --output")
         sys.exit(1)
 
 
