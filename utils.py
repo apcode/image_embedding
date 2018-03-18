@@ -4,7 +4,7 @@ import skimage.transform
 import numpy as np
 
 
-# returns image of shape [224, 224, 3]
+# returns image of shape [1, 224, 224, 3]
 # [height, width, depth]
 def load_image(path):
     # load image
@@ -18,4 +18,5 @@ def load_image(path):
     crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
     # resize to 224, 224
     resized_img = skimage.transform.resize(crop_img, (224, 224))
+    resized_img = resized_img[np.newaxis, :, :, :]
     return resized_img

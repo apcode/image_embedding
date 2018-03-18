@@ -20,17 +20,17 @@ def net():
     return images, net.embedding
 
 
-def write_embedding(emb, f, label=None):
+def write_embedding(emb, outfile, label=None):
     if label:
-        f.write(label + ",")
-    f.write(",".join([str(x) for x in emb]))
-    f.write("\n")
+        outfile.write(label + ",")
+    outfile.write(",".join([str(x) for x in emb[0,:]]))
+    outfile.write("\n")
 
 
 def batch_embed(img_path, output):
     input, embedding = net()
     n = 0
-    with open(output, "w") as f:
+    with open(output, "w") as outfile:
         with tf.Session() as sess:
             for root, _, files in os.walk(img_path):
                 for f in files:
@@ -40,7 +40,7 @@ def batch_embed(img_path, output):
                         try:
                             img = load_image(p)
                             emb = sess.run(embedding, feed_dict={input: img})
-                            write_embedding(emb, f, img)
+                            write_embedding(emb, outfile, p)
                             log.info("%ld: Wrote %s", n, p)
                         except Exception, e:
                             log.warn(e)
