@@ -1,10 +1,11 @@
 import os
 import sys
 import tensorflow as tf
-import tensorflow.logging as log
 import vgg16
 
 from utils import load_image
+
+log = tf.logging
 
 tf.flags.DEFINE_string("image",  None, "image filename")
 tf.flags.DEFINE_string("images_path", None,
